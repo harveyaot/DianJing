@@ -5,6 +5,8 @@ import json
 import time
 import random
 import datetime
+import threading
+import multiprocessing
 
 import redis
 
@@ -14,44 +16,57 @@ import redis
 #Url = "http://www.toutiao.com/api/pc/feed/?category=news_hot&utm_source=toutiao&widen=1"
 
 Url = "http://www.toutiao.com/api/pc/feed/?category=%s&utm_source=toutiao&widen=1&max_behot_time=%s&max_behot_time=%s&tadrequire=true&as=A135C940DF6BE90&cp=590FEB5EB9E01E1"
-
-cat = int(sys.argv[1])
-start_date = sys.argv[2]
-delta_days = int(sys.argv[3])
-
 r = redis.StrictRedis(host='localhost', port=6379, db=0)
-start_timestamp = datetime.datetime.strptime(start_date,"%Y%m%d").strftime("%s")
-end_timestamp = (datetime.datetime.strptime(start_date,"%Y%m%d") - datetime.timedelta(days=delta_days)).strftime("%s")
-timestamp = start_timestamp
-cats = ["news_tech","news_society","news_entertainment","news_sports","news_car","news_finance"]
 
-def process():
-    global timestamp
-    toutiao_data = requests.get(Url%(cats[cat],timestamp,timestamp)).text
+if len(sys.argv) > 1:
+    start_date = sys.argv[1]
+    start_timestamp = datetime.datetime.strptime(start_date,"%Y%m%d").strftime("%s")
+else:
+    start_timestamp = 0
+
+cats = ["news_tech","news_society","news_entertainment","news_sports","news_car",
+        "news_finance","news_game","news_world","news_military","news_history",
+        "news_fashion","__all__"
+        ]
+cats2 = ["news_baby","news_food","news_health","news_story","news_travel"]
+cats3 = ["news_home"]
+cats = cats3
+
+def process(cat,timestamp):
+    toutiao_data = requests.get(Url%(cat,timestamp,timestamp)).text
     data = json.loads(toutiao_data)
 
     if data.get("message") == "false":
         return 
 
-    articals = data.get("data")
+    articles = data.get("data")
     #timestamp = (datetime.datetime.fromtimestamp(int(timestamp)) - datetime.timedelta(minutes=15)).strftime("%s")
     timestamp = data.get("next").get("max_behot_time")
 
-    for artical in articals:
-        if not artical.get("group_id") or not artical.get("title") or not artical.get("abstract"):
+    for article in articles:
+        if not article.get("group_id") or not article.get("title") or not article.get("abstract"):
             continue
-        key = artical.get("group_id")
-        #print key,artical.get("title")
-        r.set(key,artical)
+        key = article.get("group_id")
+        val = json.dumps(article)
+        #print key,article.get("title")
+        r.set(key,val)
+    return timestamp
 
-def crawl():
+
+def worker(cat,timestamp):
     count = 0 
-    while(int(timestamp) > int(end_timestamp)):
-        print "crawl num #[%d] with time stamp [%s]"%(count,timestamp)
-        gap = random.randint(4,7)
+    while(count < 20000):
+        print "Thread:[%s] num#[%d] t:[%s]"%(cat,count,timestamp)
+        gap = random.randint(7,10)
         time.sleep(gap)
-        process()
+        timestamp = process(cat,timestamp)
         count += 1
+    
 
 if __name__ == "__main__":
-    crawl()
+    pool = multiprocessing.Pool(processes=len(cats))
+    for cat in cats:
+        pool.apply_async(worker, (cat, start_timestamp))
+    pool.close()
+    pool.join()
+    print "------all jobs finished!------"
