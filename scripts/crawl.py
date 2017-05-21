@@ -11,7 +11,7 @@ import multiprocessing
 import redis
 
 
-URL = "http://www.toutiao.com/api/pc/feed/?category=%s&utm_source=toutiao&widen=1&max_behot_time=%s&max_behot_time=%s&tadrequire=true&as=A135C940DF6BE90&cp=590FEB5EB9E01E1"
+URL = "http://www.toutiao.com/api/pc/feed/?category=%s&utm_source=toutiao&widen=1&max_behot_time=%s&max_behot_time=%s&tadrequire=true&as=A11509C182F851A&cp=5912881541EAAE1"
 r = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 #sleep time in secs
@@ -30,7 +30,7 @@ cats = ["news_tech","news_society","news_entertainment","news_sports","news_car"
         "news_travel","new_home","__all__"]
 
 def process(cat,timestamp):
-    toutiao_data = requests.get(URL%(cat,timestamp,timestamp).text
+    toutiao_data = requests.get(URL%(cat,timestamp,timestamp)).text
     data = json.loads(toutiao_data)
 
     if data.get("message") == "false":
