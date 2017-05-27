@@ -9,3 +9,6 @@
     使用encoder-decoder的技术对 头条的 摘要 和 文章对(abstract-title pair)标题进行训练
 4. 数据来源：
     主要使用 头条的 数据接口，抓万级别的训练样本。
+
+## Crawl data
+1. 使用 python crawl.py 来爬取头条数据，但是需要
