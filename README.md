@@ -10,12 +10,12 @@
 4. 数据来源：
     主要使用 头条的 数据接口，抓万级别的训练样本。
 
-## Crawl data
+## 数据爬取 Crawl Data
 1. 使用 python crawl.py 来爬取头条数据，但是需要指定头条feed 流中的 as 和 cp 两个参数，这两个参数，最好每三天更新一次，获取方法如下
    从chrom 浏览器的 network 中可以看到最新feed 流地址的这两个参数
    ![](./image/ascp.png)
 
-## 实验日志
+## 实验日志 Experiment Log 
 1. 2017/05/27  使用大约30K的训练样本，摘要-标题对，对每个汉字做100 维 embeding 使用CNN做encoder，GRU unit 的RNN 做decoer. 一天500个epoch 之后训练效果如下 ：
     * ![](./image/train_res_20170527.png)
     * 分析：
@@ -24,4 +24,15 @@
     * 改进方向
         * 训练样本可能不足
         * 基于中文分词做，不是汉字粒度
-        * LSTM 在生成长文本上的能力并不好，可以考虑基于大量语料库的language model 
+        * LSTM 在生成长文本上的能力并不好，可以考虑基于大量语料库的language model
+2. 2017/06/01 
+    * 提升：
+        * 使用search api 爬去了8000(dict/keywords.select)关键字的600K 文章
+        * 使用jieba 进行分词，进行
+        * 在30K 训练样本上的语言可读性提高
+    * 问题：
+        * 在600K 数据上OOV 问题严重，模型难以收敛
+    * 解决：
+        * 增大vocabulary size
+        * 先训练rnn 的language model，能说好话
+        * 然后是基于condition的条件下说话
