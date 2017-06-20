@@ -38,7 +38,8 @@
         * 然后是基于condition的条件下说话
 3. 2017/06/20 
     * ![](./image/train_res_20170620_2.png)
-    * ![这预测标题写的，以假乱真，不去查一下，还真的被他骗了](./image/train_res_20170620.png)
+    * 这预测标题写的，以假乱真，不去查一下，还真的被他骗了
+    * ![](./image/train_res_20170620.png)
     * 分析：
         * 增大vacobulary size 到 212K
         * pre-train rnn 的decoder，然后标题可读性大大提升
