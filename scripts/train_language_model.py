@@ -1,4 +1,6 @@
 # coding:utf-8
+# cut all sentences out from the dataset, and then give emp sequence as CNN encoder
+# only train the rnn decoder part.
 import tensorflow as tf
 import sys
 import logging

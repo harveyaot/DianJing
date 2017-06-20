@@ -1,4 +1,6 @@
 # coding:utf-8
+# resore pre-trained rnn, then use abstract - title pair as traing samples
+# to train this title generator
 import tensorflow as tf
 import sys
 import logging

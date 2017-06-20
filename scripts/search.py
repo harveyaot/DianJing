@@ -1,4 +1,5 @@
-#coding:utf-8   
+# coding:utf-8   
+# call the toutiao search api to crawl articles
 import sys
 import requests
 import json
