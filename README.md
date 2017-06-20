@@ -19,7 +19,7 @@
 1. 2017/05/27  使用大约30K的训练样本，摘要-标题对，对每个汉字做100 维 embeding 使用CNN做encoder，GRU unit 的RNN 做decoer. 一天500个epoch 之后训练效果如下 ：
     * ![](./image/train_res_20170527.png)
     * 分析：
-        * 可以基本的分析出描述中的关键语义
+        * 基本可以分析出描述中的关键语义
         * 但是语言可读性较差
     * 改进方向
         * 训练样本可能不足
@@ -36,3 +36,16 @@
         * 增大vocabulary size
         * 先训练rnn 的language model，能说好话
         * 然后是基于condition的条件下说话
+3. 2017/06/20 
+    * ![](./image/train_res_20170620_2.png)
+    * ![](./image/train_res_20170620.png)
+    这预测标题写的，以假乱真，不去查一下，还真的被他骗了
+    * 分析：
+        * 增大vacobulary size 到 212K
+        * pre-train rnn 的decoder，然后标题可读性大大提升
+        * 700k 的training samples， 对语义的理解准确性提升
+    * 提升：
+        * 调低learning rate 和 batch_size 增加探索能力
+        * 考虑如何解决 OOV  的问题
+        * 主要是push 当前的 search，abstract-embedding，AI，三个版本上线
+        

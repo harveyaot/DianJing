@@ -36,6 +36,7 @@ _, word2idx, idx2word, titles, abstracts = pickle.load(open(DataFile))
 
 beg,eos,emp,unk = 0,1,2,3
 learning_rate = 0.001
+learning_rate = 10e-5
 
 save_epoc_step = 2
 dropout_keep_prob = 0.7

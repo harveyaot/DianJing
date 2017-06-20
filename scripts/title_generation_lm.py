@@ -7,7 +7,7 @@ import random
 import os
 from tensorflow.contrib import rnn
 
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
 class Word:
     def __init__(self,val,tf,df):
@@ -19,7 +19,7 @@ class Word:
 
 
 logger = logging.getLogger('training')
-hdlr = logging.FileHandler('log/train.20170612.log')
+hdlr = logging.FileHandler('log/tg_train.20170619.log')
 logger.addHandler(hdlr) 
 logger.setLevel(logging.INFO)
 tensorboard_log_path = './log/'
@@ -30,18 +30,20 @@ sys.setdefaultencoding("utf-8")
 
 DataFile = "data/basic_data_700k_v2.pkl"
 print "Loading file from %s." %DataFile
-sample_file = "log/train.20170612.samples"
-MODEL_DUMP_DIR = "./model5"
+sample_file = "log/tg_train.20170619.samples"
+MODEL_DUMP_DIR = "./tg_model5"
 _, word2idx, idx2word, titles, abstracts = pickle.load(open(DataFile))
+assert len(titles) == len(abstracts)
 
 beg,eos,emp,unk = 0,1,2,3
 learning_rate = 0.001
+learning_rate = 10e-5
 
 save_epoc_step = 2
-dropout_keep_prob = 0.7
+dropout_keep_prob = 0.9
 
 RESTORE = True
-batch_size = 128
+batch_size = 34
 epocs = 1500
 
 
@@ -188,39 +190,35 @@ with tf.Session() as sess:
         #saver = tf.train.import_meta_graph('model/TitleGeneration-110.meta')
         saver.restore(sess,tf.train.latest_checkpoint(MODEL_DUMP_DIR))
 
-    sents = prepare_sentences()
+    #sents = prepare_sentences()
 
     for i in range(epocs):
         j = 0
-        while (j < len(sents)):
+        while (j < len(titles)):
             # TODO emp uesed to train language model. 
             # the last batch 
-            if j + batch_size > len(sents):
-                j += batch_size
-                continue
 
-            encoder_inputs_ = map(lambda x:rpadd(x,maxlend),[[emp]] * batch_size )
-            decoder_inputs_ = map(lambda x:rpadd(x,maxlenh,prefix=beg),sents[j:j+batch_size])        
-            decoder_targets_ = map(lambda x:x[1:] + [emp],decoder_inputs_)
+            encoder_inputs_ = map(lambda x:rpadd(x,maxlend), abstracts[j : j + batch_size] )
+            decoder_inputs_ = map(lambda x:rpadd(x,maxlenh,prefix=beg), titles[j : j + batch_size])        
+            decoder_targets_ = map(lambda x:x[1:] + [emp], decoder_inputs_)
     
             j = j + batch_size
-            summary, _,loss_,decoder_prediction_ = sess.run([summary_op,train_op,loss,decoder_prediction],
+            summary, _, loss_, decoder_prediction_ = sess.run([summary_op,train_op,loss,decoder_prediction],
                 feed_dict={
                     encoder_inputs : encoder_inputs_,
                     decoder_inputs : decoder_inputs_,
                     decoder_targets : decoder_targets_
             })
-            writer.add_summary(summary, i * len(sents) + j)
+            writer.add_summary(summary, i * len(titles) + j)
             if j % (batch_size * 30) == 0:
                 logger.info( "Runing in EPOC[%d] Batch [%d] with loss [%f]" %(i, j / batch_size,loss_))             
-                k = random.randint(0,len(titles)-1)
-
-                test_encode_input = rpadd([emp],maxlend)
-                test_decode_output = rpadd(titles[k],maxlenh)
-                #prt2file("[**描  述**]",test_encode_input)
-                test_x = [test_decode_output[0]]
+                k = random.randint(0, len(titles)-1)
+                test_encode_input = rpadd(abstracts[k], maxlend)
+                test_decode_output = rpadd(titles[k], maxlenh)
+                prt2file("[**描  述**]", test_encode_input)
+                test_x = []
                 for l in range(maxlenh):
-                    new_decoder_input = rpadd(test_x,maxlenh,prefix=beg)
+                    new_decoder_input = rpadd(test_x, maxlenh, prefix=beg)
                     decoder_prediction_ = sess.run([decoder_prediction],
                              feed_dict = {
                                 encoder_inputs : [test_encode_input],
@@ -231,7 +229,7 @@ with tf.Session() as sess:
                     if decoder_prediction_[0][0][l] == eos:
                         break
                 prt2file("[*预测标题*]",test_x)                
-                #prt2file("[*真实标题*]",test_decode_output)
+                prt2file("[*真实标题*]",test_decode_output)
                 
         if i %  save_epoc_step == 0:
                 saver.save(sess,"%s/TitleGeneration"%(MODEL_DUMP_DIR),global_step = i)
