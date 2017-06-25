@@ -175,11 +175,11 @@ stepwise_cross_entropy = tf.nn.softmax_cross_entropy_with_logits(
     logits=decoder_logits,
 )
 
-loss = tf.reduce_mean(stepwise_cross_entropy,name = "loss")
+loss = tf.reduce_mean(stepwise_cross_entropy, name = "loss")
 tf.summary.scalar("cost", loss)
 summary_op = tf.summary.merge_all()
 
-decoder_prediction = tf.argmax(decoder_logits, 2,name = "decoder_prediction")
+decoder_prediction = tf.argmax(decoder_logits, 2, name = "decoder_prediction")
 train_op = tf.train.AdamOptimizer(learning_rate).minimize(loss,name = "op_adam_minize")
 saver = tf.train.Saver()
 
