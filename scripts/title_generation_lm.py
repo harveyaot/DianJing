@@ -21,7 +21,7 @@ class Word:
 
 
 logger = logging.getLogger('training')
-hdlr = logging.FileHandler('log/tg_train.20170619.log')
+hdlr = logging.FileHandler('log/tg_train.20170628.log')
 logger.addHandler(hdlr) 
 logger.setLevel(logging.INFO)
 tensorboard_log_path = './log/'
@@ -32,14 +32,14 @@ sys.setdefaultencoding("utf-8")
 
 DataFile = "data/basic_data_700k_v2.pkl"
 print "Loading file from %s." %DataFile
-sample_file = "log/tg_train.20170619.samples"
+sample_file = "log/tg_train.20170628.samples"
 MODEL_DUMP_DIR = "./tg_model5"
 _, word2idx, idx2word, titles, abstracts = pickle.load(open(DataFile))
 assert len(titles) == len(abstracts)
 
 beg,eos,emp,unk = 0,1,2,3
 learning_rate = 0.001
-learning_rate = 10e-5
+learning_rate = 10e-6
 
 save_epoc_step = 2
 dropout_keep_prob = 0.9
