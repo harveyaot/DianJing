@@ -10,8 +10,10 @@
 4. 数据来源：
     主要使用 头条的 数据接口，抓万级别的训练样本。
 
-## 数据爬取 Crawl Data
-1. 使用 python crawl.py 来爬取头条数据，但是需要指定头条feed 流中的 as 和 cp 两个参数，这两个参数，最好每三天更新一次，获取方法如下
+## 数据使用和爬取  Data Usage and Crawl
+1. 可用的训练数据，`./data/basic_data_80k_v2.pkl.tgz` 包含了约61K的(abstract, title)数据。通过tar -xzvf basic_data_80k_v2.pkl.tgz 解压之后，可以使用 `./scripts` 下的 data_utils.py 来check 数据数量和展示sample的样本。
+2. 另有一份large data set 包含 700k左右的training 样本， 将稍候公开 （ETA Mar. 2018）。
+3. 使用 `./scripts/crawl.py` 来爬取头条数据，但是需要指定头条feed 流中的 as 和 cp 两个参数，这两个参数，最好每三天更新一次，获取方法如下
    从chrom 浏览器的 network 中可以看到最新feed 流地址的这两个参数
    ![](./image/ascp.png)
 
